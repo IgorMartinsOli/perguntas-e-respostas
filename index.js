@@ -5,6 +5,7 @@ const port = process.env.PORT
 const bodyparser = require('body-parser')
 const connection = require('./database/database')
 const Pergunta = require('./database/Pergunta')
+const Resposta = require('./database/Resposta')
 
 connection
     .authenticate()
@@ -53,5 +54,13 @@ app.get('/pergunta/:id', (req, res) => {
             res.redirect('/')
         }
     })
+})
+
+app.post('/responder', (req, res) => {
+    const {corpo, perguntaId} = req.body;
+
+    Resposta
+    .create({corpo, perguntaId})
+    .then(() => res.redirect(`/pergunta/${perguntaId}`));
 })
 app.listen(port, () => console.log(`Example app listening on port ${port}!`))
