@@ -4,7 +4,7 @@ require('dotenv').config()
 const port = process.env.PORT
 const bodyparser = require('body-parser')
 const connection = require('./database/database')
-const perguntaModel = require('./database/Pergunta')
+const Pergunta = require('./database/Pergunta')
 
 connection
     .authenticate()
@@ -21,7 +21,13 @@ app.use(express.static('public'))
 app.use(bodyparser.urlencoded({extended: false}))
 app.use(bodyparser.json())
 
-app.get('/', (req, res) => res.render('index'))
+app.get('/', (req, res) => {
+    Pergunta.findAll({raw: true}).then(perguntas => {
+        res.render('index', {
+            perguntas
+        })
+    })
+})
 
 app.get('/perguntar', (req, res) => {
     res.render('perguntar')
@@ -29,8 +35,9 @@ app.get('/perguntar', (req, res) => {
 
 app.post('/pergunta/salvar', (req, res) => {
     const {titulo, descricao} = req.body;
-    res.send(`Formulario recebido!
-    Titulo: ${titulo} 
-    Descricao: ${descricao}`)
+    Pergunta.create({
+        titulo: titulo,
+        descricao: descricao
+    }).then(() => res.redirect('/'))
 })
 app.listen(port, () => console.log(`Example app listening on port ${port}!`))
